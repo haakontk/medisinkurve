@@ -7,19 +7,13 @@ from .userinput import KurveArk
 from .kurveark import lage_pdf
 import os
 import csv
+
+# Global variables
 abs_path = os.path.abspath(os.path.dirname(__file__))
-
-
-'''
-Legge inn tre horisontale streker øverst til venstre i medisinkurvefanen.
-Lag pil tilbake?
-Lage footer-seksjon.
-'''
 
 
 def manual(request, kurveark=None):
     extra_forms = 24
-
     if request.method == 'POST':
         print("running manual(request) with method=POST")
         data = {'form-TOTAL_FORMS': str(extra_forms),
@@ -35,7 +29,7 @@ def manual(request, kurveark=None):
             if kurveark == None: 
                 kurveark = KurveArk()
             else: 
-                kurveark = kurveark
+                # Populating kurveark from autofill() function.
                 for index, fast_medisin in enumerate(kurveark.faste_medisiner):
                     form_no = index+1
                     data['form-' + str(form_no) + '-legemiddelnavn'     ] = fast_medisin.legemiddelnavn
@@ -46,8 +40,6 @@ def manual(request, kurveark=None):
                     data['form-' + str(form_no) + '-dose0814'           ] = fast_medisin.dose0814
                     data['form-' + str(form_no) + '-dose1420'           ] = fast_medisin.dose1420
                     data['form-' + str(form_no) + '-dose2024'           ] = fast_medisin.dose2024
-
-
                     if index > 13: break #We don't accept more than 14 faste medikamenter
                 for index, behovs_medisin in enumerate(kurveark.behovs_medisiner):
                     form_no = index+15
@@ -56,33 +48,23 @@ def manual(request, kurveark=None):
                     data['form-' + str(form_no) + '-enhet'              ] = behovs_medisin.enhet
                     data['form-' + str(form_no) + '-administrasjonsform'] = behovs_medisin.administrasjonsform
                     data['form-' + str(form_no) + '-dose_fritekst'      ] = behovs_medisin.dose_fritekst
-
-                    if index > 23: break #We don't accept more than 14 faste medikamenter
-
-
-                for form in formset:
-                    for field in form:
-                        pass
-#                        print("field value)
-                    break
+                    if index > 23: break #We don't accept more than 8 behovs medikamenter
             for index, form in enumerate(formset):
-#                print(form)
                 user_input = form.cleaned_data
-#                print("Printing user input")
-#                print(user_input)
                 if user_input:
                     if index == 0:
                         kurveark.diagnose = user_input['diagnose']
                         kurveark.cave = user_input['cave']
-#                        print(user_input) 
-                    elif index < 15: kurveark.legg_til_medikament(faste = True, **user_input)
+                    elif index < 15: 
+                        kurveark.legg_til_medikament(faste = True, **user_input)
+                    elif index < 23: 
+                        kurveark.legg_til_medikament(faste = False, **user_input)
                     elif index == 23: 
                         notat = ''
                         for char in user_input['notat']:
                             if char != '\r':
                                 notat += char
                         kurveark.notat = notat
-                    else: kurveark.legg_til_medikament(faste = False, **user_input)
 
             if 'liste' in request.POST.dict():
                 print('Liste was clicked')
@@ -110,19 +92,16 @@ def manual(request, kurveark=None):
     else:
         Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
         formset = Unready_FormSet()
-    raw_kurveark = KurveArk()
-
-    return render(request, 'medisinkurve/manual.html', {'kurveark': raw_kurveark, 
+        raw_kurveark = KurveArk()
+        return render(request, 'medisinkurve/manual.html', {'kurveark': raw_kurveark, 
                                                         'formset': formset})
 
 def index(request):
     try:
-        print(request.META['HTTP_USER_AGENT'])
         with open(os.path.join(abs_path, "forbidden_agents.csv"), newline='') as csvfile:
             agentreader = csv.reader(csvfile, delimiter=',')
             for clean_list_of_agents in agentreader:
                 for agent in clean_list_of_agents:
-                    
                     if agent == request.META['HTTP_USER_AGENT']:
                         return render(request, 'medisinkurve/forbidden_agent.html', {})
     except Exception as e:
@@ -137,10 +116,7 @@ def autofill(request):
             Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
             formset = Unready_FormSet()
             return render(request, 'medisinkurve/autofill.html', {'formset': formset})        
-
         if request.method == 'POST':
-            print("Request was POST")
-    #        form =  FastMedisinForm(request.POST)
             data = {'form-TOTAL_FORMS': str(extra_forms),
                     'form-INITIAL_FORMS': '0',
                     'form-MAX_NUM_FORMS': ''}
@@ -162,9 +138,6 @@ def autofill(request):
                         if 'autofill_behov' in user_input:
                             text = user_input['autofill_behov']
                             kurveark.autofill_from_behov_meds(text)
-
-                        print(kurveark)
-
                         return manual(request, kurveark=kurveark)
                     else:
                         return get_default_view()
