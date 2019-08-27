@@ -1,0 +1,47 @@
+{% extends 'medisinkurve/base.html' %}
+
+{% block content %}
+    <div id="formsection">
+        <form action="/autofill/" method="post">
+            {% csrf_token %}
+            <div class="index_main">
+            <h3>Lim inn tidligere medisinliste</h3>
+            </div>
+            {% for form in formset %}
+                <div class="index_horizontal_with_spacing">
+                    <div class="index_vertical">
+                        {% if forloop.first %} {{ form.autofill_faste.label }} {% endif %}
+                        {{ form.autofill_faste }}
+                    </div>
+                    <div class="index_vertical">
+                        {% if forloop.first %} {{ form.autofill_behov.label }} {% endif %}
+                        {{ form.autofill_behov }}
+                    </div>
+                </div>
+
+<!--                    <div class="index_vertical">-->
+<!--                        <div class="index_vertical">-->
+<!--                        {% if forloop.first %} {{ form.autofill_faste.label }} {% endif %}-->
+<!--                        {{ form.autofill_faste }}-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="index_horizontal">-->
+<!--                        <div class="index_vertical">-->
+<!--                        {% if forloop.first %} {{ form.autofill_behov.label }} {% endif %}-->
+<!--                        {{ form.autofill_behov }}-->
+<!--                        </div>-->
+<!--                    </div>-->
+            {% endfor %}
+            <div id="buttons">
+                <input type="submit" name="autofill" value="Lag kurve">
+            </div>
+
+
+        </form>
+    </div>
+        
+
+{% endblock %}
+
+
+

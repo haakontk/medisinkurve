@@ -1,0 +1,142 @@
+{% extends 'medisinkurve/base.html' %}
+{% load static %}
+{% block content %}
+
+
+    <!--FORMSECTION-->
+    <div id="formsection">
+        <form action="/manual/" method="post">
+            {% csrf_token %}
+            <h2>Diagnose og CAVE</h2>
+            {% for diagnose_cave in formset|slice:":1" %}
+                <div id="cave_diagnose_div" class="verticalunit1">
+                    <div class="horizontalunitdiv">
+                        {{ diagnose_cave.errors }}
+                        {{ diagnose_cave.diagnose.label }}      
+                        {{ diagnose_cave.diagnose }}
+                    </div>
+                    <div class="horizontalunitdiv">
+                        {{ diagnose_cave.errors }}
+                        {{ diagnose_cave.cave.label }}     
+                        {{ diagnose_cave.cave }}
+                    </div>
+                </div>
+            {% endfor %}
+            <h2>Faste medisiner</h2>
+            {% for fasteform in formset|slice:"1:15" %}
+                <div id="faste_medisiner_{{ forloop.counter0 }}" class="{% cycle "verticalunit1" "verticalunit2" %} verticalunit">
+                    <div class="firsthorizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.ny_medisin.label }} {% endif %}
+                        <div class="ny_medisin_div">
+                            <div class="closest_checkbox_container">                           
+                                {{ fasteform.ny_medisin }}
+                                <label for={{ fasteform.ny_medisin.id_for_label }}></label>	
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontalunitdiv">
+                        {% if forloop.first %}{{ fasteform.legemiddelnavn.label }} {% endif %}       
+                        {{ fasteform.legemiddelnavn }}
+                    </div>
+                    <div class="horizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.legemiddelform.label }} {% endif %}     
+                        {{ fasteform.legemiddelform }}
+                    </div>
+
+                    <div class="horizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.enhet.label }} {% endif %}
+                        {{ fasteform.enhet }}
+                    </div>
+                    <div class="horizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.administrasjonsform.label }} {% endif %}
+                        {{ fasteform.administrasjonsform }}
+                    </div>
+                    <div class="lasthorizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.dose0008.label }}<br> {% endif %}
+                        {{ fasteform.dose0008 }}                
+                        {{ fasteform.dose1420 }}        
+                        {{ fasteform.dose0814 }}        
+                        {{ fasteform.dose2024 }}        
+                    </div>
+                </div>
+            {% endfor %}
+            <h2>Eventuelle medisiner</h2>
+            {% for fasteform in formset|slice:"15:23" %}
+                <div id="behovs_medisiner_{{ forloop.counter0 }}" class="{% cycle "verticalunit1" "verticalunit2" %} verticalunit">
+                    <div class="firsthorizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.ny_medisin.label }} {% endif %}
+                        <div class="ny_medisin_div">
+                            <div class="closest_checkbox_container">                           
+                                {{ fasteform.ny_medisin }}
+                                <label for={{ fasteform.ny_medisin.id_for_label }}></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontalunitdiv">
+                        {% if forloop.first %}{{ fasteform.legemiddelnavn.label }} {% endif %}       
+                        {{ fasteform.legemiddelnavn }}
+                    </div>
+                    <div class="horizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.legemiddelform.label }} {% endif %}     
+                        {{ fasteform.legemiddelform }}
+                    </div>
+                    <div class="horizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.enhet.label }} {% endif %}
+                        {{ fasteform.enhet }}
+                    </div>
+                    <div class="horizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.administrasjonsform.label }} {% endif %}
+                        {{ fasteform.administrasjonsform }}
+                    </div>
+                    <div class="lasthorizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.dose0008.label }}<br> {% endif %}
+                        {{ fasteform.dose_fritekst }}        
+                    </div>
+                </div>
+            {% endfor %}
+            <h2>Notater</h2>
+            {% for fasteform in formset|slice:"23:" %}
+                <div class= "{% cycle "verticalunit1" "verticalunit2" %}">
+                    <div id="manual_notat_horizontalunitdiv">
+                        {% if forloop.first %} {{ fasteform.notat.label }} {% endif %}
+                        {{ fasteform.notat }}
+                    </div>
+                </div>
+            {% endfor %}
+            <div id="buttons">
+                <input type="submit" name="liste" value="Lag legemiddelliste">
+                <input type="submit" name="pdf" value="Lag PDF">
+<!--                <input type="submit" name="interaksjoner" value="Interaksjonsanalyse">-->
+            </div>
+        </form>
+    </div>
+
+
+    {% if kurveark.autofill_has_been_run == False %}            
+        {% if kurveark.faste_medisiner or kurveark.behovs_medisiner %}    
+        <div id="medisinliste">
+            {% if kurveark.faste_medisiner %}    
+                <p><strong>Faste</strong></p>
+            {% endif %}    
+            {% for medisin in kurveark.faste_medisiner %}
+                <p>{{ medisin.legemiddelnavn }} {{ medisin.legemiddelform }} {{ medisin.kompaktdose }} </p>        
+            {% endfor %}
+            <br>
+            {% if kurveark.behovs_medisiner %}    
+                <p><strong>Ved behov</strong></p>
+            {% endif %}    
+            {% for medisin in kurveark.behovs_medisiner %}
+                <p>{{ medisin.legemiddelnavn }} {{ medisin.legemiddelform }} {{ medisin.kompaktdose }} </p>        
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endif %}
+
+<script type="text/javascript" src="{% static 'medisinkurve/jquery-3.3.1.js' %}"></script>
+<script type="text/javascript" src="{% static 'medisinkurve/manual.js' %}"></script>
+{% endblock %}
+
+
+
+
+

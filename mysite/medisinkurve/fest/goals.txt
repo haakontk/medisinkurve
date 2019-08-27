@@ -1,0 +1,31 @@
+
+
+
+
+Nå har jeg en måte som returnerer alle mulige oppflegemiddelmerkevarer for en gitt legemiddelinput f eks "Paracet 1g x 4.
+Nå er jobben å skrelle ned så mye som mulig på disse oppflegemiddelmerkevarene.
+
+Hvis det f eks står "Paracet tbl 1g x 4" ønsker jeg kun å ha med tablettformuleringer av paracet med.
+
+
+
+
+
+
+
+
+
+
+Må ha en liste over alle mulige legemiddelformer
+
+
+
+
+
+
+
+
+
+
+
+
