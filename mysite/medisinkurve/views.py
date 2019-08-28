@@ -23,8 +23,8 @@ def manual(request, kurveark=None):
             data[key] = value
         Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
         formset = Unready_FormSet(data)
-#        print("Printing request.POST: ")
-#        print(request.POST.dict().items())
+        print("Printing request.POST: ")
+        print(request.POST.dict().items())
         if formset.is_valid():
             if kurveark == None: 
                 kurveark = KurveArk()
