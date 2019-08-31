@@ -10,10 +10,10 @@ import itertools
 
 if __name__ == '__main__': 
     from fest_reader import FestData, get_festdata, LegemiddelMerkevare, Virkestoffmedstyrke
-    from kurveark import lage_pdf
+    from pdf_generator import lage_pdf
 else: 
     from .fest_reader import FestData, get_festdata, LegemiddelMerkevare, Virkestoffmedstyrke
-    from .kurveark import lage_pdf
+    from .pdf_generator import lage_pdf
 
 class Medikament():
     """
@@ -723,10 +723,11 @@ class KurveArk():
     I KurveArk brukes Medikament-klassen for medikamentene.
     """
     
-    def __init__(self, diagnose = '', cave = '', notat = ''):
+    def __init__(self, diagnose = '', cave = '', notat = '', sykehus=''):
         self.diagnose           = diagnose
         self.cave               = cave
         self.notat              = notat
+        self.sykehus            = sykehus
         self.ids                = []    #List of legemiddel id-s (int) currently in use. 
         self.faste_medisiner    = []
         self.behovs_medisiner   = []

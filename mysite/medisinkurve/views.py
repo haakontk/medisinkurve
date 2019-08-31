@@ -4,7 +4,7 @@ from django.forms import formset_factory
 from django.urls import reverse
 from .forms import FastMedisinForm
 from .userinput import KurveArk
-from .kurveark import lage_pdf
+from .pdf_generator import lage_pdf
 import os
 import csv
 
@@ -68,7 +68,7 @@ def manual(request, sykehus, kurveark=None):
         # print(request.POST.dict().items())
         if formset.is_valid():
             if kurveark == None: 
-                kurveark = KurveArk()
+                kurveark = KurveArk(sykehus=sykehus)
             else: 
                 # Populating kurveark from autofill() function.
                 for index, fast_medisin in enumerate(kurveark.faste_medisiner):
@@ -129,9 +129,9 @@ def manual(request, sykehus, kurveark=None):
     else:
         Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
         formset = Unready_FormSet()
-        raw_kurveark = KurveArk()
+        raw_kurveark = KurveArk(sykehus=sykehus)
         return default_render()
-        
+
 def autofill(request, sykehus):
     extra_forms = 1
     def get_default_view():
@@ -153,7 +153,7 @@ def autofill(request, sykehus):
                 form = formset[0]
                 user_input = form.cleaned_data
                 if 'autofill_faste' or 'autofill_behov' in user_input:    #This is true if the input text is non-empty
-                    kurveark = KurveArk()
+                    kurveark = KurveArk(sykehus=sykehus)
                     if 'autofill_faste' in user_input:
                         text = user_input['autofill_faste']
                         kurveark.autofill_from_faste_meds(text)
