@@ -106,27 +106,27 @@
             <div id="buttons">
                 <input type="submit" name="liste" value="Lag legemiddelliste">
                 <input type="submit" name="pdf" value="Lag PDF">
-<!--                <input type="submit" name="interaksjoner" value="Interaksjonsanalyse">-->
+                <input type="submit" name="interaksjoner" value="Interaksjonsanalyse">
             </div>
         </form>
     </div>
 
 
     {% if kurveark.autofill_has_been_run == False %}            
-        {% if kurveark.faste_medisiner or kurveark.behovs_medisiner %}    
+        {% if kurveark.kompakt_strings_exists %}    
         <div id="medisinliste">
             {% if kurveark.faste_medisiner %}    
                 <p><strong>Faste</strong></p>
             {% endif %}    
             {% for medisin in kurveark.faste_medisiner %}
-                <p>{{ medisin.legemiddelnavn }} {{ medisin.legemiddelform }} {{ medisin.kompaktdose }} </p>        
+                <p>{{ medisin.kompaktstring }} </p>        
             {% endfor %}
             <br>
             {% if kurveark.behovs_medisiner %}    
                 <p><strong>Ved behov</strong></p>
             {% endif %}    
             {% for medisin in kurveark.behovs_medisiner %}
-                <p>{{ medisin.legemiddelnavn }} {{ medisin.legemiddelform }} {{ medisin.kompaktdose }} </p>        
+                <p>{{ medisin.kompaktstring }} </p>        
             {% endfor %}
         </div>
         {% endif %}

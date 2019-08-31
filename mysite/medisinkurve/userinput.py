@@ -62,7 +62,8 @@ class Medikament():
         self.proportion_of_tablet   = None      #Hvis input er 50mg og det finnes bare en tablett på 100mg blir denne verdien 0.5
         self.allow_proportions      = False     #True hvis det er lov med halve og doble tabletter. False hvis ikke.
         self.autofill_completed     = False
-        self.kompaktdose            = self._make_compact_dose()
+        self.kompaktdose            = ''
+        self.kompaktstring          = ''
 
     def __str__(self):
         my_string = ""
@@ -120,7 +121,6 @@ class Medikament():
                 _common_tasks()                
         if self.matching_legemiddelmerkevarer == None or self.matching_legemiddelmerkevarer == []: self.legemiddelnavn = self.raw_legemiddelinput
         self.check_if_autofill_is_successful()
-        if self.autofill_completed == True: self._make_compact_dose()
 
     def find_non_no_of_times_a_day_floats(self):
         try:
@@ -704,16 +704,21 @@ class Medikament():
 
     def _make_compact_dose(self):
         if self.dose_fritekst != '':
-            return(self.dose_fritekst)
+            self.kompaktdose = self.dose_fritekst
         doses = [self.dose0008, self.dose0814, self.dose1420, self.dose2024]
         non_empty_doses = [dose for dose in doses if dose!='']
         non_empty_doses_all_equal = len(set(non_empty_doses)) == 1
         if self.dose0008 == '' and self.dose0814 == '' and self.dose1420 == '' and self.dose2024 != '':
-            return(self.dose2024 + self.enhet + ' x 1 vesp')
+            self.kompaktdose = self.dose2024 + self.enhet + ' x 1 vesp'
         if non_empty_doses_all_equal:
-            return(non_empty_doses[0]+self.enhet + ' x ' + str(len(non_empty_doses)))
+            self.kompaktdose = non_empty_doses[0]+self.enhet + ' x ' + str(len(non_empty_doses))
         else:
-            return("+".join(non_empty_doses) + " " + self.enhet)
+            self.kompaktdose = "+".join(non_empty_doses) + " " + self.enhet
+
+    def _make_compact_string(self):
+        if self.kompaktdose == '':
+            self._make_compact_dose()
+        self.kompaktstring = ' '.join([self.legemiddelnavn, self.legemiddelform, self.kompaktdose])
 
 
 class KurveArk():
@@ -736,6 +741,7 @@ class KurveArk():
         self.actual_interactions= [] #A list of tuples containing (medikament1, medikament2, interaction object). 
         self.medisiner_ukjente  = [] #A list containing the drugs where no atc-code or active substance was found.
         self.autofill_has_been_run = False
+        self.kompakt_strings_exists = False
 
     def __str__(self):
         my_string = ""
@@ -758,6 +764,14 @@ class KurveArk():
                 self.autofill_has_been_run = True
             except Exception as e:
                 print("Error in KurveArk.auto_fill_from_faste_meds()", e)
+
+    def create_compact_doses(self):
+        for drug in self.faste_medisiner:
+            drug._make_compact_string()
+        for drug in self.behovs_medisiner:
+            drug._make_compact_string()
+        self.kompakt_strings_exists = True
+
 
     def autofill_from_behov_meds(self, string):
         self.entire_raw_input_string_behov = string
