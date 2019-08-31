@@ -1,0 +1,423 @@
+/* ===================== GLOBAL SECTION ===================== */
+body {
+    margin: 0px;
+    padding: 0px;
+    font-family: Arial,Helvetica Neue,Helvetica,sans-serif; 
+}
+
+
+/* ===================== HEADER SECTION ===================== */
+#header {
+/*    background-color: #28599E;*/
+/*    height: 90px;*/
+/*    line-height: 90px;*/
+/*    margin: 0px;*/
+/*    color: #ffffff;*/
+/*    font-size: 200%;*/
+}
+
+h1 {
+/*    font-size: 180%;*/
+/*    text-align: center;*/
+/*    margin: 0px;*/
+/*    vertical-align: middle;*/
+}
+
+.menu_icon {
+  width: 35px;
+  height: 5px;
+  background-color: black;
+  margin: 6px 0;
+}
+
+
+/* Add a black background color to the top navigation */
+.topnav {
+    position: relative;
+    background-color: #28599E;
+    overflow: hidden;
+}
+
+/* Style the links inside the navigation bar */
+.topnav .normal_link {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.topnav #main_logo_link {
+    text-decoration: none;
+    color: white;
+}
+
+
+/* Change the color of links on hover */
+.topnav .normal_link:hover {
+    background-color: #3273cd;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+    background-color: #193967;
+}
+
+/* Centered section inside the top navigation */
+.topnav-centered h1 {
+    float: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    color: white;
+}
+
+/* Right-aligned section inside the top navigation */
+.topnav-right {
+    float: right;
+}
+
+/* Responsive navigation menu - display links on top of each other instead of next to each other (for mobile devices) */
+@media screen and (max-width: 600px) {
+    .topnav a, .topnav-right {
+        float: none;
+        display: block;
+    }
+
+    .topnav-centered a {
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: none;
+    }
+}
+
+/* ===================== MAIN SECTION ===================== */
+.main {
+    margin: 8px;
+}
+
+#formsection {
+    border-radius: 20px;
+    background-color: #f0f0f0;
+    padding: 20px;    
+    margin: 10px;
+}
+
+#medisinliste {
+    line-height: 80%;
+    float: left;
+    border-radius: 20px;
+    background-color: #f2f2f2;
+    padding: 20px;    
+    margin: 10px;
+    width: 45%;
+    box-sizing: border-box;
+    font-family: "Times New Roman", Times, serif;
+}
+
+#interaksjonsliste {
+    line-height: 80%;
+    float: left;
+    border-radius: 20px;
+    background-color: #f2f2f2;
+    padding: 20px;    
+    margin: 10px;
+    width: 45%;
+    box-sizing: border-box;
+    font-family: "Times New Roman", Times, serif;
+}
+
+
+/* Style checkboxes, textinputs and buttons */
+
+
+input[type=text] {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.notat {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+::placeholder {
+    opacity: 0.4;
+    font-family: Arial,Helvetica Neue,Helvetica,sans-serif;  
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin-top: 8px;
+    margin-bottom: -8px;
+    border: none;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+input[type=checkbox] {
+    visibility: hidden;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px 12px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+    font-family: Arial,Helvetica Neue,Helvetica,sans-serif; 
+}
+
+#buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+
+
+/*Index_view_main_stuff*/
+
+.index_main {
+    display: flex;
+    justify-content: center;
+}
+
+.index_vertical {
+    display: flex;
+    flex-direction: column; 
+    padding: 25px; 
+}
+
+.index_horizontal {
+    display: flex;
+    justify-content: center; 
+}
+
+.index_horizontal_with_spacing {
+    display: flex;
+    justify-content: space-around; 
+    padding: 10px;
+    margin: 10px;
+}
+
+.index_buttons {
+    margin: 5px;
+}
+
+#manual_notat_horizontalunitdiv {
+    width: 240px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.index_horizontal a:link, .index_horizontal a:visited {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 25px;
+    margin: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.index_horizontal a:hover, .index_horizontal a:active {
+    background-color: #45a049;
+}
+
+
+
+/*Done with Index_view_main_stuff*/
+
+.ny_medisin {
+}  
+
+.closest_checkbox_container {
+    width: 25px;
+    margin: 20px 100px;
+    position: relative;    
+}
+
+.closest_checkbox_container label {
+    cursor: pointer;
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    top: 0;
+    left: 0;
+    background: #eee;
+    border:1px solid #ddd;
+}
+
+.closest_checkbox_container label:after {
+    opacity: 0.2;
+    content: '';
+    position: absolute;
+    width: 9px;
+    height: 5px;
+    background: transparent;
+    top: 6px;
+    left: 7px;
+    border: 3px solid #333;
+    border-top: none;
+    border-right: none;
+    transform: rotate(-45deg);
+}
+
+.closest_checkbox_container label:hover::after {
+    opacity: 0.5;
+}
+
+.closest_checkbox_container input[type=checkbox]:checked + label:after {
+    opacity: 1;
+}
+
+.closest_checkbox_container input[type=checkbox]:checked + label {
+    background: blue;
+}
+
+/* Other stuff*/
+
+#firstdose {
+    display: inline;
+}
+
+.horizontalunitdiv {
+    width: 15%;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.horizontalunitdiv_red {
+    width: 15%;
+    display: inline-block;
+    vertical-align: top;
+    background-color: #ff0000;
+}
+
+.horizontalunitdiv_autofillsection {
+    display: flex;
+    justify-content: space-around;
+}
+
+.firsthorizontalunitdiv {
+    width: 8%;
+    display: inline-block;
+    vertical-align: top;
+}
+.ny_medisin_div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 58px;
+}
+
+.lasthorizontalunitdiv {
+    width: 28%;
+    display: inline-block;
+}
+
+.verticalunit1 {
+    background-color: #d6e0f5;
+    padding: 10px;
+    margin: 0;
+}
+.verticalunit2 {
+    background-color: #adc1eb;
+    padding: 10px;
+    margin: 0;
+}
+.dose {
+    width: 49%;
+    height: 26px;
+    padding: 12px 20px;
+    margin: 0 0 5px 0;
+
+}
+.medisin {
+    width: 100%;
+    height: 58px;
+    padding: 12px 20px;
+    margin: 0;
+}
+
+/* ===================== Autofill stuff ===================== */
+
+.test_color {
+    background-color: #cce0f0;
+}
+
+/* ===================== FAQ      stuff ===================== */
+
+#img_div {
+    overflow: hidden;
+}
+
+#img_div img {
+    width: 500px;
+    height: 400px;
+    margin: -50px 0 0 -100px;
+}
+
+.rotate90 {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+
+#faq_main_child {
+    float: left;
+    width: 50%;
+}
+
+/* Style the buttons that are used to open and close the accordion panel */
+.accordion {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    text-align: left;
+    border: none;
+    outline: none;
+    transition: 0.4s;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .accordion:hover {
+    background-color: #ccc;
+}
+
+/* Style the accordion panel. Note: hidden by default */
+.panel {
+    padding: 0 18px;
+    background-color: white;
+    display: none;
+    overflow: hidden;
+}
+
+
+
+
+
+
+
+
+
+
+
+

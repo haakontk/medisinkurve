@@ -1,0 +1,41 @@
+{% extends 'medisinkurve/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="main">
+    <h2>Ofte stilte spørsmål</h2>
+    <div id="faq_main_child">
+        <button class="accordion">Hvordan printer man ut medisinkurven?</button>
+        <div class="panel">
+            <p>1) Åpne PDF-filen i Adobe Reader.</p>
+            <p>2) Trykk Ctrl + P for å komme til printemenyen.</p>
+            <p>3) Velg "faktisk størrelse".</p>
+            <p>4) Velg "skriv ut på begge sider".</p>
+            <p>5) Velg vend på "kortside" eller "langside" avhengig av hvilken vei det fysiske kurvearket vender.</p>
+            <p>6) Legg arket inn i printeren med ID-siden vendt opp og ut av printeren, se bilde.</p>
+            <div id="img_div">
+                <img id="image_canv" class="rotate90" src="{% static 'medisinkurve/printer_bilde.JPG' %}">
+            </div>
+            <p>7) Skriv ut.</p>
+        </div>
+
+        <button class="accordion">Hvorfor fungerer det ikke å skrive inn i doseringsfeltet?</button>
+        <div class="panel">
+            <p>Dette kan skje dersom du bruker Internet Explorer. Nettsiden støtter ikke Internet Explorer. Velg Google Chrome eller Edge.</p>
+        </div>
+
+        <button class="accordion">Hva om jeg trenger mer enn én kurve?</button>
+        <div class="panel">
+            <p>Vi støtter foreløpig bare én kurve av gangen. Man kan åpne en ny fane og gjenta prosessen for kurveark nr 2.</p>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="{% static 'medisinkurve/jquery-3.3.1.js' %}"></script>
+<script type="text/javascript" src="{% static 'medisinkurve/faq.js' %}"></script>
+
+{% endblock %}
+
+
+

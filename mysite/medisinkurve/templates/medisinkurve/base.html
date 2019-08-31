@@ -1,0 +1,43 @@
+{% load static %}
+<html>
+<head>
+    <title>Medisinkurve</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'medisinkurve/style.css' %}">
+    <!--Load favicons-->
+</head>
+<body>
+
+<!--HEADER-->
+<div id="header">
+<header>
+<!-- Top navigation -->
+<div class="topnav">
+    <!-- Centered link -->
+    <div class="topnav-centered">
+        <h1>
+            <a id="main_logo_link" href="{% url 'index' %}">Medisinkurve</a>
+        </h1>
+    </div>
+    <div class="topnav-right">
+        <a class="normal_link" href="{% url 'faq' %}">FAQ</a>
+        <a class="normal_link" href="{% url 'om' %}">Om</a>
+    </div>
+
+</div>
+
+
+
+</header>
+</div>
+
+
+{% block content %}
+{% endblock content %}
+
+</body>
+</html>
+
+
+
+
+
