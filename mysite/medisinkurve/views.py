@@ -11,8 +11,49 @@ import csv
 # Global variables
 abs_path = os.path.abspath(os.path.dirname(__file__))
 
+def metode(request, sykehus):
+    try:
+        return render(request, 'medisinkurve/metode.html', {'sykehus': sykehus})
+    except Exception as e:
+        print("Error in metode() view.", e)        
+        return HttpResponse("<h2>Something went wrong. Error in metode() view. " + str(e) + "</h2>")
 
-def manual(request, kurveark=None):
+
+def index(request):
+    try:
+        with open(os.path.join(abs_path, "forbidden_agents.csv"), newline='') as csvfile:
+            agentreader = csv.reader(csvfile, delimiter=',')
+            for clean_list_of_agents in agentreader:
+                for agent in clean_list_of_agents:
+                    if agent == request.META['HTTP_USER_AGENT']:
+                        return render(request, 'medisinkurve/forbidden_agent.html', {})
+    except Exception as e:
+        print("Error in sykehus() view.", e)        
+    return render(request, 'medisinkurve/sykehus.html', {})
+
+
+def faq(request):
+    try:
+        return render(request, 'medisinkurve/faq.html')
+    except Exception as e:
+        print("Error in faq() view.", e)
+        return HttpResponse("<h2>Something went wrong. Error in faq() view. " + str(e) + "</h2>")
+
+def om(request):
+    try:
+        return render(request, 'medisinkurve/om.html')
+    except Exception as e:
+        print("Error in om() view.", e)
+        return HttpResponse("<h2>Something went wrong. Error in om() view. " + str(e) + "</h2>")
+
+def manual(request, sykehus, kurveark=None):
+
+    def default_render():
+        print("running default_render")
+        return render(request, 'medisinkurve/manual.html', {'kurveark': kurveark, 
+                                                            'formset': formset,
+                                                            'sykehus': sykehus})
+
     extra_forms = 24
     if request.method == 'POST':
         print("running manual(request) with method=POST")
@@ -23,8 +64,8 @@ def manual(request, kurveark=None):
             data[key] = value
         Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
         formset = Unready_FormSet(data)
-        print("Printing request.POST: ")
-        print(request.POST.dict().items())
+        # print("Printing request.POST: ")
+        # print(request.POST.dict().items())
         if formset.is_valid():
             if kurveark == None: 
                 kurveark = KurveArk()
@@ -66,25 +107,21 @@ def manual(request, kurveark=None):
                                 notat += char
                         kurveark.notat = notat
 
+
             if 'liste' in request.POST.dict():
                 print('Liste was clicked')
-                return render(request, 'medisinkurve/manual.html', {'kurveark': kurveark, 
-                                                                    'formset': formset})
-
+                return default_render()
             elif 'pdf' in request.POST.dict():
                 print('PDF was clicked')
                 buf = lage_pdf(kurveark)
                 return FileResponse(buf, as_attachment=True, filename='Medisinkurve.pdf')
-
             elif 'autofill' in request.POST.dict():
                 print('autofill used in manual()-view')
-                return render(request, 'medisinkurve/manual.html', {'kurveark': kurveark, 
-                                                                    'formset': formset})
+                return default_render()
             elif 'interaksjoner' in request.POST.dict():
                 print('interaksjoner was clicked')
-#                Do interaction stuff here
-                return render(request, 'medisinkurve/manual.html', {'kurveark': kurveark, 
-                                                                    'formset': formset})
+                # Do interaction stuff here
+                return default_render()
                 
         else:
             print(formset.errors)
@@ -93,77 +130,49 @@ def manual(request, kurveark=None):
         Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
         formset = Unready_FormSet()
         raw_kurveark = KurveArk()
-        return render(request, 'medisinkurve/manual.html', {'kurveark': raw_kurveark, 
-                                                        'formset': formset})
-
-def index(request):
-    try:
-        with open(os.path.join(abs_path, "forbidden_agents.csv"), newline='') as csvfile:
-            agentreader = csv.reader(csvfile, delimiter=',')
-            for clean_list_of_agents in agentreader:
-                for agent in clean_list_of_agents:
-                    if agent == request.META['HTTP_USER_AGENT']:
-                        return render(request, 'medisinkurve/forbidden_agent.html', {})
-    except Exception as e:
-        print("Error in index() view.", e)
+        return default_render()
         
-    return render(request, 'medisinkurve/index.html', {})
-
-def autofill(request):
-    try:
-        extra_forms = 1
-        def get_default_view():
-            Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
-            formset = Unready_FormSet()
-            return render(request, 'medisinkurve/autofill.html', {'formset': formset})        
-        if request.method == 'POST':
-            data = {'form-TOTAL_FORMS': str(extra_forms),
-                    'form-INITIAL_FORMS': '0',
-                    'form-MAX_NUM_FORMS': ''}
-            for key, value in request.POST.dict().items():
-                data[key] = value
-            Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
-            formset = Unready_FormSet(data)
-            if 'autofill' in request.POST.dict():
-                print('Autofill was clicked')            
-                if formset.is_valid():
-                    print("form_is_valid")
-                    form = formset[0]
-                    user_input = form.cleaned_data
-                    if 'autofill_faste' or 'autofill_behov' in user_input:    #This is true if the input text is non-empty
-                        kurveark = KurveArk()
-                        if 'autofill_faste' in user_input:
-                            text = user_input['autofill_faste']
-                            kurveark.autofill_from_faste_meds(text)
-                        if 'autofill_behov' in user_input:
-                            text = user_input['autofill_behov']
-                            kurveark.autofill_from_behov_meds(text)
-                        return manual(request, kurveark=kurveark)
-                    else:
-                        return get_default_view()
+def autofill(request, sykehus):
+    extra_forms = 1
+    def get_default_view():
+        Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
+        formset = Unready_FormSet()
+        return render(request, 'medisinkurve/autofill.html', {'formset': formset,
+                                                                'sykehus': sykehus})        
+    if request.method == 'POST':
+        data = {'form-TOTAL_FORMS': str(extra_forms),
+                'form-INITIAL_FORMS': '0',
+                'form-MAX_NUM_FORMS': ''}
+        for key, value in request.POST.dict().items():
+            data[key] = value
+        Unready_FormSet = formset_factory(FastMedisinForm, extra=extra_forms)
+        formset = Unready_FormSet(data)
+        if 'autofill' in request.POST.dict():
+            print('Autofill was clicked')            
+            if formset.is_valid():
+                form = formset[0]
+                user_input = form.cleaned_data
+                if 'autofill_faste' or 'autofill_behov' in user_input:    #This is true if the input text is non-empty
+                    kurveark = KurveArk()
+                    if 'autofill_faste' in user_input:
+                        text = user_input['autofill_faste']
+                        kurveark.autofill_from_faste_meds(text)
+                    if 'autofill_behov' in user_input:
+                        text = user_input['autofill_behov']
+                        kurveark.autofill_from_behov_meds(text)
+                    return manual(request, sykehus, kurveark=kurveark)
                 else:
-                    return HttpResponse("<h2>Something went wrong. The form was invalid.</h2>")
-                    
+                    return get_default_view()
+            else:
+                print("Error: form was invalid.")
+                return HttpResponse("<h2>Something went wrong. The form was invalid.</h2>")
         else:
-            return get_default_view()
-    except Exception as e:
-        print("Error in autofill() view.", e)
-        return HttpResponse("<h2>Something went wrong. Error in autofill() view. " + str(e) + "</h2>")
-
-def faq(request):
-    try:
-        return render(request, 'medisinkurve/faq.html')
-    except Exception as e:
-        print("Error in faq() view.", e)
-        return HttpResponse("<h2>Something went wrong. Error in faq() view. " + str(e) + "</h2>")
-
-def om(request):
-    try:
-        return render(request, 'medisinkurve/om.html')
-    except Exception as e:
-        print("Error in om() view.", e)
-        return HttpResponse("<h2>Something went wrong. Error in om() view. " + str(e) + "</h2>")
-
+            return HttpResponse("<h2>Something went wrong. POST was sent, but without 'autofill'.</h2>")
+    else:
+        return get_default_view()
+    # except Exception as e:
+    #     print("Error in autofill() view.", e)
+    #     return HttpResponse("<h2>Something went wrong. Error in autofill() view. " + str(e) + "</h2>")
 
 
 

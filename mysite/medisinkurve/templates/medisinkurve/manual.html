@@ -5,7 +5,7 @@
 
     <!--FORMSECTION-->
     <div id="formsection">
-        <form action="/manual/" method="post">
+        <form action="{% url 'manual' sykehus %}" method="post">
             {% csrf_token %}
             <h2>Diagnose og CAVE</h2>
             {% for diagnose_cave in formset|slice:":1" %}

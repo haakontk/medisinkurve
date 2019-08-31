@@ -1,0 +1,18 @@
+{% extends 'medisinkurve/base.html' %}
+
+{% block content %}
+    <div class="index_main">
+        <div class="index_vertical">
+            <div class="index_horizontal">
+                <p>Hvilket sykehus er du på?</p> 
+            </div>
+            <div class="index_horizontal">
+                <a href="{% url 'metode' 'molde' %}">Molde</a>
+                <a href="{% url 'metode' 'kristiansund' %}">Kristiansund</a>
+            <div>
+        </div>
+    </div>
+{% endblock %}
+
+
+

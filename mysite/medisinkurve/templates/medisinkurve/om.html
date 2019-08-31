@@ -1,6 +1,6 @@
 {% extends 'medisinkurve/base.html' %}
-
 {% block content %}
+
 <div class="main">
     <h1>Om medisinkurve.no</h1><br>
     <h3>Ansvarsfraskrivelse</h3>
@@ -8,7 +8,7 @@
     <br>
 
     <h3>Webmastere</h3>
-    <p>Nettsiden er laget av Eirik Aksdal og Håkon Kiær. Hensikten er å gjøre det lettere å skrive medisinkurver ved Molde sykehus.</p>
+    <p>Nettsiden er laget av Eirik Aksdal og Håkon Kiær. Hensikten er å lette arbeidet ved sykehus som fortsatt bruker ikke-elektroniske kurver.</p>
     <br>
 
     <h3>Hvordan fungerer automatisk medisinlistegjenkjenning?</h3>
@@ -17,7 +17,6 @@
     <p>3) Algoritmen vil nå lete etter frasen "x n" eller "xn" der n er enten 1, 2, 3 eller 4. Eksempel: Dersom man skriver "Albyl-E tbl 75mg x 4" vil algoritmen gjenkjenne "x 4" og regne med at medisinen gis med fast dosering 4 ganger daglig. Dersom algoritmen ikke finner "x n" eller "xn" vil den lete etter plusstegnet "+". Hvis man skriver "Furix 20+40mg" vil algoritmen finne étt plusstegn og anta at medisinen gis 2 ganger daglig (den vil da automatisk anta morgen og kveld).</p>
     <p>4) Algoritmen leter nå etter tall som kan representere dosering eller styrke. Dersom man skriver "Acetylsalisylsyre 75mg x 1" har algoritmen til nå skjønt hvilket virkestoff det dreier seg om og at det skal gis én gang daglig. Nå leter den etter andre tall og finner "75". Den leter deretter etter alle merkenavn med (kun) virkestoffet acetylsalisylsyre med styrke 75. Dersom man skriver feil dosering, f eks "76" vil ikke algoritmen gjenfinne medikamentet og man må manuelt rette feilen etterpå. 
     <p>5) Dersom medikamentet inneholder flere virkestoff og styrker vil algoritmen lete etter alle tall og gjøre seg opp en mening om hvilket medikament som kan stemme. Dersom man f eks skriver "Targiniq 10/5 tbl x 1" vil algoritmen finne tallene "10" og "5" og dermed forstå hvilken styrke det er snakk om. Legg merke til at algoritmen vil rette feilen "tbl" til "depottbl" da den henter legemiddelformuleringen fra SLVs register. Dette kvalitetssikrer forholdet mellom medikamentnavn og legemiddelformulering slik at det ikke skal være mulig at algoritmen spytter ut "Seloken depottbl 50mg x 1".
-    <p>6) Dersom man har skrevet inn et medikament som kommer i flere formuleringer vil algoritmen lete etter frasene "tbl", "depot", "t", "tab", "inj", "væske" og bruke dette til å finne riktig medikament. Algoritmen vil prioritere tabletter over infusjonsvæsker dersom man ikke spesifikt har skrevet "inj" eller "væske" i medisinlisten. Dette fordi de aller fleste bruker tablettformuleringer over infusjonsformuleringer utenfor sykehus. Vær dog oppmerksom på dette.
 
     <p>Vær obs på at de logiske reglene kan endre seg over tid.</p>
 

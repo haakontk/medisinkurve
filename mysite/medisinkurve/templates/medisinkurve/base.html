@@ -4,13 +4,6 @@
     <title>Medisinkurve</title>
     <link rel="stylesheet" type="text/css" href="{% static 'medisinkurve/style.css' %}">
     <!--Load favicons-->
-    <link rel="apple-touch-icon" sizes="60x60" href="{% static 'medisinkurve/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'medisinkurve/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'medisinkurve/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'medisinkurve/site.webmanifest' %}">
-    <link rel="mask-icon" href="{% static 'medisinkurve/safari-pinned-tab.svg' %}" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
 </head>
 <body>
 
@@ -19,18 +12,12 @@
 <header>
 <!-- Top navigation -->
 <div class="topnav">
-
     <!-- Centered link -->
     <div class="topnav-centered">
         <h1>
             <a id="main_logo_link" href="{% url 'index' %}">Medisinkurve</a>
         </h1>
     </div>
-
-    <!-- Left-aligned links (default) -->
-<!--    <a href="#news">News</a>-->
-
-    <!-- Right-aligned links -->
     <div class="topnav-right">
         <a class="normal_link" href="{% url 'faq' %}">FAQ</a>
         <a class="normal_link" href="{% url 'om' %}">Om</a>
@@ -40,17 +27,10 @@
 
 
 
-<!--    <div id="menu_icon_mother">-->
-<!--        <div class="menu_icon"></div>-->
-<!--        <div class="menu_icon"></div>-->
-<!--        <div class="menu_icon"></div>-->
-<!--    </div>-->
-<!--    <h1>Medisinkurve</h1>-->
 </header>
 </div>
 
 
-<!--Block content-->
 {% block content %}
 {% endblock content %}
 
