@@ -411,11 +411,44 @@ textarea {
 }
 
 
+/* ===================== Interactions      stuff ===================== */
+
+.rod_0 {
+    background-color: rgb(230, 35, 35);
+    margin: 0px;
+    padding: 5px;
+}
+
+.rod_1 {
+    background-color: rgb(255, 80, 80);
+    margin: 0px;
+    padding: 5px;
+}
 
 
+.gul_0 {
+    background-color: rgb(255, 255, 162);
+    margin: 0px;
+    padding: 5px;
+}
 
+.gul_1 {
+    background-color: rgb(255, 255, 214);
+    margin: 0px;
+    padding: 5px;
+}
 
+.gronn_0 {
+    background-color: rgb(59, 202, 40);
+    margin: 0px;
+    padding: 5px;
+}
 
+.gronn_1 {
+    background-color: rgb(113, 231, 98);
+    margin: 0px;
+    padding: 5px;
+}
 
 
 

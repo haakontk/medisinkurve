@@ -67,6 +67,7 @@ def manual(request, sykehus, kurveark=None):
         # print("Printing request.POST: ")
         # print(request.POST.dict().items())
         if formset.is_valid():
+            interaksjonsanalyse_bool = 'interaksjoner' in request.POST.dict()
             if kurveark == None: 
                 kurveark = KurveArk(sykehus=sykehus)
             else: 
@@ -97,9 +98,13 @@ def manual(request, sykehus, kurveark=None):
                         kurveark.diagnose = user_input['diagnose']
                         kurveark.cave = user_input['cave']
                     elif index < 15: 
-                        kurveark.legg_til_medikament(faste = True, **user_input)
+                        kurveark.legg_til_medikament(faste = True, 
+                                                    find_atc_virkestoff = interaksjonsanalyse_bool, 
+                                                    **user_input)
                     elif index < 23: 
-                        kurveark.legg_til_medikament(faste = False, **user_input)
+                        kurveark.legg_til_medikament(faste = False, 
+                                                    find_atc_virkestoff = interaksjonsanalyse_bool, 
+                                                    **user_input)
                     elif index == 23: 
                         notat = ''
                         for char in user_input['notat']:
@@ -121,7 +126,10 @@ def manual(request, sykehus, kurveark=None):
                 return default_render()
             elif 'interaksjoner' in request.POST.dict():
                 print('interaksjoner was clicked')
-                # Do interaction stuff here
+                kurveark.init_interaction_analysis()
+                for interaction_tuple in kurveark.actual_interactions:
+                    interaction = interaction_tuple[2]
+                    print(interaction)
                 return default_render()
                 
         else:

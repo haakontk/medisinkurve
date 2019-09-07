@@ -3,15 +3,101 @@ import pickle
 from pathlib import Path
 import os
 abs_path = os.path.abspath(os.path.dirname(__file__))
-#os.path.join(abs_path, 'fest/fest251.xml')
 import xml.etree.ElementTree as ET
 
 
 
 '''
 TODO:
-- Info om administrasjonsmåte må knyttes til legemiddelmerkevare.
 '''
+
+class Interaksjon():
+    def __init__(self, oppfinteraksjon_xml_object):
+        self.oppfinteraksjon_xml_object = oppfinteraksjon_xml_object
+        self.ns = {'spam': "http://www.kith.no/xmlstds/eresept/m30/2014-12-01", 'spam2': "http://www.kith.no/xmlstds/eresept/forskrivning/2014-12-01"}
+        self.tidspunkt              = None
+        self.status                 = None
+        self.relevans               = None      # Tuple (str:value, str:relevans)
+        self.kliniskkonsekvens      = None
+        self.interaksjonsmekanisme  = None
+        self.kildegrunnlag          = None      # Tuple (str:value, str:kildegrunnlag)
+        self.handtering             = None
+        self.referanser             = []        # Contains tuples with (str:Kilde, str:Lenke). One may be None.
+        self.substansgruppe1        = []        # Contains tuples with (str:ATC, str:virkestoff). One may be None
+        self.substansgruppe2        = []        # Contains tuples with (str:ATC, str:virkestoff). One may be None
+        self.register_data()
+
+    def __str__(self):
+        my_string = ""
+        helper_dic = {  "interaksjonsmekanisme: ":      self.interaksjonsmekanisme,
+                        "relevans: ":                   self.relevans,
+                        "substansgruppe1":              self.substansgruppe1[0],
+                        "substansgruppe2":              self.substansgruppe2[0]}
+        for key, value in helper_dic.items():
+            my_string += f"{key:20}" + str(value) + '\n'
+        my_string += "\n"
+        return my_string
+
+    def register_data(self):
+        if self.oppfinteraksjon_xml_object == None: 
+            return
+        tidspunkt = self.oppfinteraksjon_xml_object.find("spam:Tidspunkt", self.ns)
+        if tidspunkt != None:
+            self.tidspunkt = tidspunkt.text[0:10]            
+        interaksjon = self.oppfinteraksjon_xml_object.find("spam:Interaksjon", self.ns)
+        if interaksjon == None: 
+            return
+        relevans = interaksjon.find("spam:Relevans", self.ns)
+        if relevans != None:
+            self.relevans = (relevans.attrib['V'], relevans.attrib['DN'])
+        kliniskkonsekvens = interaksjon.find("spam:KliniskKonsekvens", self.ns)
+        if kliniskkonsekvens != None:
+            self.kliniskkonsekvens = kliniskkonsekvens.text
+        interaksjonsmekanisme = interaksjon.find("spam:Interaksjonsmekanisme", self.ns)
+        if interaksjonsmekanisme != None:
+            self.interaksjonsmekanisme = interaksjonsmekanisme.text
+        kildegrunnlag = interaksjon.find("spam:Kildegrunnlag", self.ns)
+        if kildegrunnlag != None:
+            self.kildegrunnlag = (kildegrunnlag.attrib['V'], kildegrunnlag.attrib['DN'])
+        handtering = interaksjon.find("spam:Handtering", self.ns)
+        if handtering != None:
+            self.handtering = handtering.text
+        referanser = interaksjon.findall("spam:Referanse", self.ns)
+        if referanser != None:
+            for referanse in referanser:
+                kilde = referanse.find("spam:Kilde", self.ns)
+                lenke = referanse.find("spam:Lenke", self.ns)
+                if kilde != None and lenke != None:
+                    self.referanser.append((kilde.text, lenke.attrib['V']))
+                elif kilde == None and lenke == None:
+                    pass
+                elif kilde == None:
+                    self.referanser.append((kilde, lenke.attrib['V']))
+                elif lenke == None:
+                    self.referanser.append((kilde.text, lenke))
+        substansgrupper = interaksjon.findall("spam:Substansgruppe", self.ns)
+        substansgruppe1 = substansgrupper[0]
+        substansgruppe2 = substansgrupper[1]
+        for substans in substansgruppe1:
+            virkestoff = substans.find("spam:Substans", self.ns)
+            atc        = substans.find("spam:Atc", self.ns)
+            if atc != None:
+                virkestoff_text = atc.attrib['DN']
+                atc_text        = atc.attrib['V']
+                self.substansgruppe1.append((atc_text, virkestoff_text))
+            elif virkestoff != None:
+                virkestoff_text = virkestoff.text
+                self.substansgruppe1.append((None, virkestoff_text))
+        for substans in substansgruppe2:
+            virkestoff = substans.find("spam:Substans", self.ns)
+            atc        = substans.find("spam:Atc", self.ns)
+            if atc != None:
+                virkestoff_text = atc.attrib['DN']
+                atc_text        = atc.attrib['V']
+                self.substansgruppe2.append((atc_text, virkestoff_text))
+            elif virkestoff != None:
+                virkestoff_text = virkestoff.text
+                self.substansgruppe2.append((None, virkestoff_text))
 
 
 class Virkestoffmedstyrke():
@@ -104,8 +190,8 @@ class FestData():
         #Fill in lists
         self.make_legemiddelformkortliste()
 
-        #Make katinteraksjon.xml
-        self.katInteraksjon = None
+        # Create placeholder katinteraksjon
+        self.katInteraksjon = self.get_katinteraksjon_from_root()
 
         #Delete unecessary variables (saves a lot of time when serializing and de-serializing FestData()
         del self.tree
@@ -155,58 +241,23 @@ class FestData():
         else:
             return None
 
-    def del_katinteraksjon_from_memory(self):
-        del self.katInteraksjon
-        self.katInteraksjon = None
-
-    def get_katinteraksjon(self):
-        print("Starter get_katinteraksjon()")
-        my_file = Path(os.path.join(abs_path, 'fest/katinteraksjon.xml'))
-        try:
-            my_abs_path = my_file.resolve(strict=True)
-            tree = ET.parse(my_file)
-            root = tree.getroot()
-            katinteraksjon = root.find("spam:KatInteraksjon", self.ns)
-            print("Fant katinteraksjon.xml. Ferdig med get_katinteraksjon()")
-            return katinteraksjon
-        except FileNotFoundError:
-            print("Fant ikke fest/katinteraksjon.xml.")
-            self.make_katinteraksjon()
-            return self.try_get_katinteraksjon_once_more()
-        else:
-            print("Unexpected error i get_katinteraksjon()")
-
-    def try_get_katinteraksjon_once_more(self):
-        print("Forsøker å kjøre get_katinteraksjon_once_more()")
-        tree = ET.parse(os.path.join(abs_path, 'fest/katinteraksjon.xml'))
-        root = tree.getroot()
-        ns = {'spam': "http://www.kith.no/xmlstds/eresept/m30/2014-12-01", 'spam2': "http://www.kith.no/xmlstds/eresept/forskrivning/2014-12-01"}
-        katinteraksjon = root.find("spam:KatInteraksjon", ns)
-        print("Katinteraksjon: ", katinteraksjon)
-        print("Ferdig med try_get_katinteraksjon()")
+    def get_katinteraksjon_from_root(self):
+        print("Forsøker å kjøre get_katinteraksjon_from_root()")
+        # tree = ET.parse(os.path.join(abs_path, 'fest/katinteraksjon.xml'))
+        # root = tree.getroot()
+        # ns = {'spam': "http://www.kith.no/xmlstds/eresept/m30/2014-12-01", 'spam2': "http://www.kith.no/xmlstds/eresept/forskrivning/2014-12-01"}
+        katinteraksjon = self.root.find("spam:KatInteraksjon", self.ns)
+        print("KatInteraksjon: ", katinteraksjon)
+        if katinteraksjon == None:
+            print("Fatal Error in get_katinteraksjon_from_root, Katinteraksjon was None.")
         return katinteraksjon
-
-    def make_katinteraksjon(self):
-        print("Starter make_katinteraksjon()")
-        katinteraksjon_found = False
-        with open(os.path.join(abs_path, 'fest/fest251.xml'), 'r') as f:
-            with open(os.path.join(abs_path, 'fest/katinteraksjon.xml'), 'w') as g:
-                for index, line in enumerate(f):
-                    if index < 2:
-                        g.write(line)
-                    if "KatInteraksjon" in line:
-                        katinteraksjon_found = True
-                    if katinteraksjon_found:
-                        g.write(line)
-                    if "/Katinteraksjon" in line:
-                        katinteraksjon_found = False
 
     def get_interaction_objects(self, input_atc, input_virkestoff):
         """Inputs ATC-name and virkestoff (representing a drug). One or both of them can be None.
-        The function returns either None or a list of tuples. Each tuples contains 1 interaction object, 1 ID-string and 1 int.
+        The function returns either None or a list of tuples. Each tuple contains 1 interaction object, 1 ID-string and 1 int.
         The possible values for int is 0 and 1. This ties the drug in question to the first (0) or second (1)
         substansgruppe. The ID-string correspons to the oppfinteraksjon-ID in the FEST-data."""
-        if input_atc==None and input_virkestoff==None: return None
+        if input_atc == None and input_virkestoff == None: return None
         oppfinteraksjon_hits = []
         if self.katInteraksjon == None: self.katInteraksjon = self.get_katinteraksjon()
         for oppfinteraksjon in self.katInteraksjon:
@@ -221,9 +272,9 @@ class FestData():
                     atc = substans.find("spam:Atc", self.ns)
                     virkestoff = substans.find("spam:Substans", self.ns).text.lower()
                     if input_atc != None and atc != None and atc.attrib['V'] == input_atc:
-                        oppfinteraksjon_hits.append((oppfinteraksjon, oppfinteraksjon_ID.text, index))
+                        oppfinteraksjon_hits.append((Interaksjon(oppfinteraksjon), oppfinteraksjon_ID.text, index))
                     elif input_virkestoff != None and virkestoff == input_virkestoff: 
-                        oppfinteraksjon_hits.append((oppfinteraksjon, oppfinteraksjon_ID.text, index))
+                        oppfinteraksjon_hits.append((Interaksjon(oppfinteraksjon), oppfinteraksjon_ID.text, index))
         return oppfinteraksjon_hits
 
     def make_legemiddelformkortliste(self):
@@ -400,7 +451,6 @@ def get_festdata(make_new_anyways=False):
 
     def make_new_pickle_file():
         new_festdata = FestData(fest_xml_source_filepath=abs_xml_path)  
-        new_festdata.del_katinteraksjon_from_memory()
         with open(abs_pickle_path, 'wb') as f:
             pickle.dump(new_festdata, f)
         print('Lagde ny fest_data.') 
@@ -422,46 +472,15 @@ def get_festdata(make_new_anyways=False):
                 print('Suksess, returnerer pickled festdata')
                 return old_festdata
         except ModuleNotFoundError:
-            new_festdata = FestData(fest_xml_source_filepath=abs_xml_path)        
-            new_festdata.del_katinteraksjon_from_memory()      
+            new_festdata = FestData(fest_xml_source_filepath=abs_xml_path)    
             with open(abs_pickle_path, 'wb') as f:
                 pickle.dump(new_festdata, f)
             print('Måtte lage ny fest_data og pickle på nytt. Virker som det var fordi .pickle-filen ble laget fra et annet program sist gang.') 
             return new_festdata
-
-             
-
+        except Exception as e:
+            print('Warning, unexpected error in trying to retrieve festdata. Trying to make a new one')
+            return make_new_pickle_file()
 
 if __name__ == '__main__':
-    festdata = get_festdata(make_new_anyways=True)
-
-
-
-
-#    drug = 'Inuxair 2,5mg kolbe'
-#    print('ATC-koden til ' + drug + ' er: ' + festdata.get_ATC(drug))
-#    print('Virkestoffet til ' + drug + ' er: ' + festdata.get_virkestoff(drug))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    festdata = get_festdata(make_new_anyways=False)
+    festdata.get_interaction_objects(None, 'warfarin')

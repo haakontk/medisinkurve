@@ -20,7 +20,7 @@ class Medikament():
     Hver instans av Medikament vil tilsvare en legemiddelrad i kurven.
     All info om legemiddelraden er tilknyttet instanset.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, find_atc_virkestoff = False, festdata = None, **kwargs):
         self.raw_legemiddelinput    = ''
         self.legemiddelnavn         = ''
         self.legemiddel_id          = ''
@@ -65,6 +65,12 @@ class Medikament():
         self.kompaktdose            = ''
         self.kompaktstring          = ''
 
+        if self.atc == None and self.virkestoff == None and find_atc_virkestoff:
+            if festdata == None:
+                print("festdata was unexpectedly None in Medikament.__init__()")
+            else:
+                self.find_atc_virkestoff_matching_word_virkestoff(festdata)
+
     def __str__(self):
         my_string = ""
         helper_dic = {  "input: ":              self.raw_legemiddelinput,
@@ -97,6 +103,7 @@ class Medikament():
             print("Error in Medikament.__str__()", e)
         my_string += "\n"
         return my_string
+
 
     def init_autofill(self, festdata):
         def _common_tasks():
@@ -700,7 +707,7 @@ class Medikament():
         if self.atc != None or self.virkestoff != None:
             self.interaction_objects = festdata.get_interaction_objects(self.atc, self.virkestoff)
         else:
-            print("Not trying to find interaction objects for {} as neither atc of active substance was found)".format(self.legemiddelnavn))
+            print(f"INFO: Not trying to find interaction objects for {self.legemiddelnavn} as neither atc of active substance was found)")
 
     def _make_compact_dose(self):
         if self.dose_fritekst != '':
@@ -737,8 +744,9 @@ class KurveArk():
         self.faste_medisiner    = []
         self.behovs_medisiner   = []
         self.alle_medisiner     = []
+        self.festdata           = None
 
-        self.actual_interactions= [] #A list of tuples containing (medikament1, medikament2, interaction object). 
+        self.actual_interactions= [] #A list of tuples containing (medikament1, medikament2, interaction object).
         self.medisiner_ukjente  = [] #A list containing the drugs where no atc-code or active substance was found.
         self.autofill_has_been_run = False
         self.kompakt_strings_exists = False
@@ -756,7 +764,8 @@ class KurveArk():
         for line in string.split("\n"):
             self.input_meds_faste.append(line)
             self.legg_til_medikament(raw_legemiddelinput = line)
-        self.init_festdata()
+        if self.festdata == None:
+            self.init_festdata()
         for drug in self.faste_medisiner:
             try:
                 drug.find_atc_virkestoff_matching_word_virkestoff(self.festdata)
@@ -779,7 +788,8 @@ class KurveArk():
         for line in string.split("\n"):
             self.input_meds_behov.append(line)
             self.legg_til_medikament(faste = False, raw_legemiddelinput = line)
-        self.init_festdata()
+        if self.festdata == None:
+            self.init_festdata()
         for drug in self.behovs_medisiner:
             try:
                 drug.find_atc_virkestoff_matching_word_virkestoff(self.festdata)
@@ -793,14 +803,19 @@ class KurveArk():
         self.festdata = get_festdata()
 
     def init_interaction_analysis(self):
-        self.init_festdata()
-        print("Ferdig å loade festdata")
-        self._retrieve_atc_virkestoff_matching_word_info_for_all_meds()
+        if self.festdata == None:
+            self.init_festdata()
         self._retrieve_interaction_objects_for_all_meds()
         self._find_actual_interactions()
+        self.rode_interactions = [interaction for interaction in self.actual_interactions if interaction[2].relevans[0] == '1']
+        self.gule_interactions = [interaction for interaction in self.actual_interactions if interaction[2].relevans[0] == '2']
+        self.gronne_interactions = [interaction for interaction in self.actual_interactions if interaction[2].relevans[0] == '3']
+        self.farge_interactions = [self.rode_interactions, 
+                                    self.gule_interactions, 
+                                    self.gronne_interactions]
 
     def _retrieve_interaction_objects_for_all_meds(self):
-        for drug in self.alle_medisiner:            
+        for drug in self.alle_medisiner:
             drug.find_interaction_objects(self.festdata)
             if drug.atc == None and drug.virkestoff == None:
                 self.medisiner_ukjente.append(drug)
@@ -810,14 +825,25 @@ class KurveArk():
         for drug_pair in list(itertools.combinations(drugs_with_potential_interactions, 2)): #Finding all pairwise combinations of drugs
             for interaction_object_A in drug_pair[0].interaction_objects:
                 for interaction_object_B in drug_pair[1].interaction_objects:
-                    if interaction_object_A[1] == interaction_object_B[1]:
-                        if interaction_object_A[2] != interaction_object_B[2]:
+                    interaction_A_id = interaction_object_A[1]
+                    interaction_B_id = interaction_object_B[1]
+                    if interaction_A_id == interaction_B_id:
+                        substansgruppe_A_id = interaction_object_A[2]
+                        substansgruppe_B_id = interaction_object_B[2]
+                        if substansgruppe_A_id != substansgruppe_B_id:
                             #This if-statement is true if an interaction has been detected.
-                            self.actual_interactions.append((drug_pair[0], drug_pair[1], interaction_object_A))
+                            self.actual_interactions.append((drug_pair[0], drug_pair[1], interaction_object_A[0]))
 
-    def legg_til_medikament(self, faste=True, **kwargs):
+    def legg_til_medikament(self, faste=True, find_atc_virkestoff = False, **kwargs):
         legemiddel_id = self.find_suitable_id()
-        legemiddel = Medikament(legemiddel_id = legemiddel_id, fast_medisin = faste, **kwargs)
+        if find_atc_virkestoff:
+            if self.festdata == None:
+                self.init_festdata()
+        legemiddel = Medikament(legemiddel_id = legemiddel_id, 
+                                fast_medisin = faste, 
+                                find_atc_virkestoff = find_atc_virkestoff,
+                                festdata = self.festdata,
+                                **kwargs)
         if faste: self.faste_medisiner.append(legemiddel)
         else: self.behovs_medisiner.append(legemiddel)
         self.alle_medisiner.append(legemiddel)
