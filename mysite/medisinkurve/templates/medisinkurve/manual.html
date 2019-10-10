@@ -106,31 +106,56 @@
             <div id="buttons">
                 <input type="submit" name="liste" value="Lag legemiddelliste">
                 <input type="submit" name="pdf" value="Lag PDF">
-<!--                <input type="submit" name="interaksjoner" value="Interaksjonsanalyse">-->
+                <input type="submit" name="interaksjoner" value="Interaksjonsanalyse">
             </div>
         </form>
     </div>
 
-
+    {% comment %} Legemiddelliste {% endcomment %}
     {% if kurveark.autofill_has_been_run == False %}            
-        {% if kurveark.faste_medisiner or kurveark.behovs_medisiner %}    
+        {% if kurveark.kompakt_strings_exists %}    
         <div id="medisinliste">
             {% if kurveark.faste_medisiner %}    
                 <p><strong>Faste</strong></p>
             {% endif %}    
             {% for medisin in kurveark.faste_medisiner %}
-                <p>{{ medisin.legemiddelnavn }} {{ medisin.legemiddelform }} {{ medisin.kompaktdose }} </p>        
+                <p>{{ medisin.kompaktstring }} </p>        
             {% endfor %}
             <br>
             {% if kurveark.behovs_medisiner %}    
                 <p><strong>Ved behov</strong></p>
             {% endif %}    
             {% for medisin in kurveark.behovs_medisiner %}
-                <p>{{ medisin.legemiddelnavn }} {{ medisin.legemiddelform }} {{ medisin.kompaktdose }} </p>        
+                <p>{{ medisin.kompaktstring }} </p>        
             {% endfor %}
         </div>
         {% endif %}
     {% endif %}
+
+    {% comment %} Interaksjoner {% endcomment %}
+    {% if kurveark.actual_interactions %}
+        <div id="formsection">
+            {% for interaction in kurveark.rode_interactions %}
+                <div class="{% cycle "rod_0" "rod_1" %}">
+                    {{interaction.0.legemiddelnavn}} og {{interaction.1.legemiddelnavn}}<br>
+                    {{interaction.2.kliniskkonsekvens}}
+                </div>
+            {% endfor %}
+            {% for interaction in kurveark.gule_interactions %}
+                <div class="{% cycle "gul_0" "gul_1" %}">
+                    {{interaction.0.legemiddelnavn}} og {{interaction.1.legemiddelnavn}}<br>
+                    {{interaction.2.kliniskkonsekvens}}
+                </div>
+            {% endfor %}
+            {% for interaction in kurveark.gronne_interactions %}
+                <div class="{% cycle "gronn_0" "gronn_1" %}">
+                    {{interaction.0.legemiddelnavn}} og {{interaction.1.legemiddelnavn}}<br>
+                    {{interaction.2.kliniskkonsekvens}}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
 
 <script type="text/javascript" src="{% static 'medisinkurve/jquery-3.3.1.js' %}"></script>
 <script type="text/javascript" src="{% static 'medisinkurve/manual.js' %}"></script>
